@@ -362,7 +362,7 @@ struct Level : IGame {
         delete shadow[0];
         delete shadow[1];
         shadow[0] = shadow[1] = NULL;
-    #ifndef FFP
+    #if !defined(FFP) && !defined(_OS_DC)
         if (Core::settings.detail.shadows > Core::Settings::LOW) {
             if (level.isTitle())
                 shadow[0] = new Texture(32, 32, 1, FMT_SHADOW); // init dummy shadow map
@@ -537,7 +537,7 @@ struct Level : IGame {
             alphaTest = true;
         }
 
-    #ifdef FFP
+    #if defined(FFP) || defined(_OS_DC)
         switch (type) {
             case Shader::SPRITE :
             case Shader::ROOM   :
@@ -615,7 +615,7 @@ struct Level : IGame {
     }
 
     virtual void renderEnvironment(int roomIndex, const vec3 &pos, Texture **targets, int stride = 0, Core::Pass pass = Core::passAmbient) {
-        #ifdef FFP
+        #if defined(FFP) || defined(_OS_DC)
             return;
         #endif
 
@@ -2440,7 +2440,7 @@ struct Level : IGame {
             Core::setBlendMode(bmPremult);
             renderEntitiesTransp(transp);
 
-        #ifndef FFP
+        #if !defined(FFP) && !defined(_OS_DC)
             Core::setFog(FOG_NONE);
             Core::whiteTex->bind(sDiffuse);
             Core::setBlendMode(bmMult);
@@ -3236,7 +3236,7 @@ struct Level : IGame {
             ambientCache->processQueue();
         }
 
-    #ifndef FFP
+    #if !defined(FFP) && !defined(_OS_DC)
         if (shadow[0] && players[0]) {
             player = players[0];
             renderShadows(player->getRoomIndex(), shadow[0]);

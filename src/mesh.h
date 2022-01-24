@@ -1564,7 +1564,7 @@ struct MeshBuilder {
                     part += models[modelIndex].parts[transparent][i];
                     continue;
                 }
-                #ifdef FFP
+                #if defined(FFP) || defined(_OS_DC)
                     Core::mModel.identity();
                     Core::mModel.setRot(basis.rot);
                     Core::mModel.setPos(basis.pos);

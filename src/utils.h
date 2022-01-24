@@ -641,10 +641,22 @@ struct mat4 {
         PROJ_ZERO_POS,
     };
 
+#ifdef _OS_DC
+    union {
+        struct {
+          float e00, e10, e20, e30,
+                e01, e11, e21, e31,
+                e02, e12, e22, e32,
+                e03, e13, e23, e33;
+        };
+        float m[4][4];
+    };
+#else
     float e00, e10, e20, e30,
           e01, e11, e21, e31,
           e02, e12, e22, e32,
           e03, e13, e23, e33;
+#endif
 
     vec4& right()  const { return *((vec4*)&e00); }
     vec4& up()     const { return *((vec4*)&e01); }

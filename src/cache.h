@@ -127,7 +127,7 @@ struct ShaderCache {
         if (rs & RS_DISCARD)
             fx |= FX_ALPHA_TEST;
 
-    #ifndef FFP
+    #if !defined(FFP) && !defined(_OS_DC)
         if (shaders[pass][type][fx])
             return shaders[pass][type][fx];
 
@@ -184,7 +184,7 @@ struct ShaderCache {
 
     Shader *getShader(Core::Pass pass, Shader::Type type, int fx) {
         Shader *shader = shaders[pass][type][fx];
-    #ifndef FFP
+    #if !defined(FFP) && !defined(_OS_DC)
         if (shader == NULL)
             LOG("! NULL shader: %d %d %d\n", int(pass), int(type), int(fx));
         ASSERT(shader != NULL);

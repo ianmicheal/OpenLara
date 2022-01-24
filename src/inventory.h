@@ -165,7 +165,9 @@ static const OptionItem optSound[] = {
     OptionItem( ),
     OptionItem( OptionItem::TYPE_PARAM,  STR_EMPTY,         SETTINGS( audio.music     ), 0xFF0080FF, 101, SND_MAX_VOLUME, true ),
     OptionItem( OptionItem::TYPE_PARAM,  STR_EMPTY,         SETTINGS( audio.sound     ), 0xFFFF8000, 102, SND_MAX_VOLUME, true ),
+#ifndef _OS_DC
     OptionItem( OptionItem::TYPE_PARAM,  STR_REVERBERATION, SETTINGS( audio.reverb    ), STR_OFF, 0, 1 ),
+#endif
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_SUBTITLES, SETTINGS( audio.subtitles ), STR_OFF, 0, 1 ),
 #ifndef FFP
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_LANGUAGE,  SETTINGS( audio.language  ), STR_LANG_EN, 0, STR_LANG_SV - STR_LANG_EN ),
@@ -1404,7 +1406,7 @@ struct Inventory {
     #ifdef _GAPI_C3D
         return; // TODO
     #endif
-    #ifdef FFP
+    #if defined(FFP) //|| defined(_OS_DC)
         return; // TODO
     #endif
         game->setShader(Core::passFilter, Shader::FILTER_BLUR, false, false);
@@ -1425,7 +1427,7 @@ struct Inventory {
     }
 
     void grayscale(Texture *texIn, Texture *texOut) {
-    #ifdef FFP
+    #if defined(FFP) //|| defined(_OS_DC)
         return; // TODO
     #endif
         float s = 1.0f / INV_BG_SIZE;
@@ -1438,7 +1440,7 @@ struct Inventory {
     }
 
     void prepareBackground() {
-        #ifdef FFP
+        #if defined(FFP) //|| defined(_OS_DC)
             return;
         #endif
 
@@ -2081,7 +2083,7 @@ struct Inventory {
             const char *bSelect = STR[STR_KEY_FIRST + ikEnter];
             const char *bBack   = STR[STR_KEY_FIRST + Core::settings.controls[playerIndex].keys[cInventory].key];
 
-            #if defined(_OS_SWITCH) || defined(_OS_3DS) || defined(_OS_GCW0) || defined(_OS_XBOX) || defined(_OS_XB1)
+            #if defined(_OS_SWITCH) || defined(_OS_3DS) || defined(_OS_GCW0) || defined(_OS_XBOX) || defined(_OS_XB1) || defined(_OS_DC)
                 bSelect = "A";
                 bBack   = "B";
             #endif

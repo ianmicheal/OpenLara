@@ -184,9 +184,9 @@ namespace UI {
     int getWideCharGlyphIndex(uint16 glyph) {
         int lang = Core::settings.audio.language + STR_LANG_EN;
         glyph += UI::advGlyphsStart + RU_GLYPH_COUNT;
-        if (lang == STR_LANG_JA) return glyph; glyph += JA_GLYPH_COUNT;
-        if (lang == STR_LANG_GR) return glyph; glyph += GR_GLYPH_COUNT;
-        if (lang == STR_LANG_CN) return glyph; glyph += CN_GLYPH_COUNT;
+        if (lang == STR_LANG_JA) {return glyph;} glyph += JA_GLYPH_COUNT;
+        if (lang == STR_LANG_GR) {return glyph;} glyph += GR_GLYPH_COUNT;
+        if (lang == STR_LANG_CN) {return glyph;} glyph += CN_GLYPH_COUNT;
         ASSERT(false);
         return glyph;
     }

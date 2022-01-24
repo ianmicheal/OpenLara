@@ -216,6 +216,17 @@
     #include <os.h>
 
     #undef OS_PTHREAD_MT
+#elif __DC__
+    #define _OS_DC   1
+    #define _GAPI_TA  1
+    
+    #define INV_SINGLE_PLAYER
+    #define INV_VIBRATION
+    #define INV_GAMEPAD_ONLY
+    #define INV_QUALITY
+    #undef OS_FILEIO_CACHE
+    #undef OS_PTHREAD_MT
+    #undef USE_CUBEMAP_MIPS
 #endif
 
 #if !defined(_OS_PSP) && !defined(_OS_TNS)
@@ -230,11 +241,15 @@
     #define FFP
 #endif
 
-#ifdef FFP
+#if defined(FFP) //|| defined(_OS_DC)
     #define SPLIT_BY_TILE
     #if defined(_GAPI_GU)
         #define SPLIT_BY_CLUT
     #endif
+#elif defined(_OS_DC)
+    #define SPLIT_BY_TILE
+    //#define MERGE_SPRITES
+	//#define MERGE_MODELS
 #else
     // current etnaviv driver implementation uses uncompatible Mesa GLSL compiler
     // it produce unimplemented TRUNC/ARL instructions instead of F2I
@@ -391,7 +406,7 @@ namespace Core {
             }
 
             void setLighting(Quality value) {
-            #if defined(_GAPI_SW) || defined(_GAPI_GU)
+            #if defined(_GAPI_SW) || defined(_GAPI_GU) //|| defined(_GAPI_TA)
                 lighting = LOW;
             #else
                 lighting = value;
@@ -399,7 +414,7 @@ namespace Core {
             }
 
             void setShadows(Quality value) {
-            #if defined(_GAPI_SW) || defined(_GAPI_GU)
+            #if defined(_GAPI_SW) || defined(_GAPI_GU) //|| defined(_GAPI_TA)
                 shadows = LOW;
             #else
                 shadows = value;
@@ -407,7 +422,7 @@ namespace Core {
             }
 
             void setWater(Quality value) {
-            #if defined(_GAPI_SW) || defined(_GAPI_GU)
+            #if defined(_GAPI_SW) || defined(_GAPI_GU) //|| defined(_GAPI_TA)
                 water = LOW;
             #else
                 if (value > LOW && !(support.texFloat || support.texHalf))
@@ -807,6 +822,8 @@ namespace Core {
     #include "gapi/gxm.h"
 #elif _GAPI_VULKAN
     #include "gapi/vk.h"
+#elif _GAPI_TA
+    #include "gapi/ta.h"
 #endif
 
 #include "texture.h"
@@ -1085,6 +1102,14 @@ namespace Core {
         settings.detail.setLighting(Core::Settings::LOW);
         settings.detail.setShadows(Core::Settings::LOW);
         settings.detail.setWater(Core::Settings::LOW);
+    #endif
+    
+    #ifdef _OS_DC
+        settings.detail.setFilter   (Core::Settings::MEDIUM);
+        settings.detail.setLighting (Core::Settings::MEDIUM);
+        settings.detail.setShadows  (Core::Settings::MEDIUM);
+        settings.detail.setWater    (Core::Settings::MEDIUM);
+        settings.audio.reverb = false;
     #endif
 
         memset(&active, 0, sizeof(active));

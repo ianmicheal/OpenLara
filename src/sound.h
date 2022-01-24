@@ -10,9 +10,12 @@
     #define DECODE_IMA
     #define DECODE_VAG
     #define DECODE_XA
+#if !defined(_OS_DC)
     #define DECODE_OGG
+#endif
 
-    #if !defined(_OS_PSP) && !defined(_OS_WEB) && !defined(_OS_PSV) && !defined(_OS_3DS) && !defined(_OS_XBOX) && !defined(_OS_XB1)
+    #if !defined(_OS_PSP)  && !defined(_OS_WEB) && !defined(_OS_PSV) && !defined(_OS_3DS) && \
+		!defined(_OS_XBOX) && !defined(_OS_XB1) && !defined(_OS_DC)
         #define DECODE_MP3
     #endif
 #endif

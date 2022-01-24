@@ -1380,6 +1380,7 @@ namespace TR {
                 CHECK_FILE("BINDATA/TITLE1.BIN");   // SEGA
                 return "level/1/AMERTIT.PNG";       // WEB
             case LVL_TR1_GYM :
+                CHECK_FILE("DATA/GYMLOAD.PCX");      // DC
                 CHECK_FILE("DELDATA/GYMLOAD.RAW");
                 CHECK_FILE("BINDATA/GYM224.BIN");
                 CHECK_FILE("BINDATA/GYM.BIN");
@@ -1388,6 +1389,7 @@ namespace TR {
             case LVL_TR1_2  :
             case LVL_TR1_3A :
             case LVL_TR1_3B :
+                CHECK_FILE("DATA/AZTECLOA.PCX");      // DC
                 CHECK_FILE("DELDATA/AZTECLOA.RAW");
                 CHECK_FILE("BINDATA/AZTEC224.BIN");
                 CHECK_FILE("BINDATA/AZTEC.BIN");
@@ -1397,6 +1399,7 @@ namespace TR {
             case LVL_TR1_6  :
             case LVL_TR1_7A :
             case LVL_TR1_7B :
+                CHECK_FILE("DATA/GREEKLOA.PCX");      // DC
                 CHECK_FILE("DELDATA/GREEKLOA.RAW");
                 CHECK_FILE("BINDATA/GREEK224.BIN");
                 CHECK_FILE("BINDATA/GREEK.BIN");
@@ -1404,6 +1407,7 @@ namespace TR {
             case LVL_TR1_8A :
             case LVL_TR1_8B :
             case LVL_TR1_8C :
+                CHECK_FILE("DATA/EGYPTLOA.PCX");      // DC
                 CHECK_FILE("DELDATA/EGYPTLOA.RAW");
                 CHECK_FILE("BINDATA/EGYPT224.BIN");
                 CHECK_FILE("BINDATA/EGYPT.BIN");
@@ -1411,6 +1415,7 @@ namespace TR {
             case LVL_TR1_10A :
             case LVL_TR1_10B :
             case LVL_TR1_10C :
+                CHECK_FILE("DATA/ATLANLOA.PCX");      // DC
                 CHECK_FILE("DELDATA/ATLANLOA.RAW");
                 CHECK_FILE("BINDATA/ATLAN224.BIN");
                 CHECK_FILE("BINDATA/ATLAN.BIN");
