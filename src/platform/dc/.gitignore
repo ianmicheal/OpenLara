@@ -1,0 +1,8 @@
+cd/*
+*.o
+*.bin
+*.BIN
+*.iso
+*.ISO
+cdi4dc
+*.cdi
