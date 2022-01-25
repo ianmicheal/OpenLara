@@ -6,3 +6,4 @@ cd/*
 *.ISO
 cdi4dc
 *.cdi
+*.elf

@@ -263,7 +263,7 @@
 
 #include "utils.h"
 
-#if defined(_OS_3DS)
+#if defined(_OS_3DS) //|| defined(_OS_DC)
     #define SHADOW_TEX_SIZE      512
 #elif defined(_OS_GCW0)
     #define SHADOW_TEX_SIZE      256

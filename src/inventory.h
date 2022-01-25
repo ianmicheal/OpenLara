@@ -1406,7 +1406,7 @@ struct Inventory {
     #ifdef _GAPI_C3D
         return; // TODO
     #endif
-    #if defined(FFP) //|| defined(_OS_DC)
+    #if defined(FFP) || defined(_OS_DC)
         return; // TODO
     #endif
         game->setShader(Core::passFilter, Shader::FILTER_BLUR, false, false);
@@ -1427,7 +1427,7 @@ struct Inventory {
     }
 
     void grayscale(Texture *texIn, Texture *texOut) {
-    #if defined(FFP) //|| defined(_OS_DC)
+    #if defined(FFP) || defined(_OS_DC)
         return; // TODO
     #endif
         float s = 1.0f / INV_BG_SIZE;
@@ -1440,7 +1440,7 @@ struct Inventory {
     }
 
     void prepareBackground() {
-        #if defined(FFP) //|| defined(_OS_DC)
+        #if defined(FFP) || defined(_OS_DC)
             return;
         #endif
 

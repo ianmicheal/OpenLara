@@ -362,7 +362,7 @@ struct Level : IGame {
         delete shadow[0];
         delete shadow[1];
         shadow[0] = shadow[1] = NULL;
-    #if !defined(FFP) && !defined(_OS_DC)
+    #if !defined(FFP) //&& !defined(_OS_DC)
         if (Core::settings.detail.shadows > Core::Settings::LOW) {
             if (level.isTitle())
                 shadow[0] = new Texture(32, 32, 1, FMT_SHADOW); // init dummy shadow map
@@ -1853,9 +1853,8 @@ struct Level : IGame {
     }
 
     void renderSky() {
-        #if !defined(_GAPI_GL) && !defined(_GAPI_D3D11)
-            return;
-        #endif
+        #if defined(_GAPI_GL) || defined(_GAPI_D3D11)
+        
         ASSERT(mesh->transparent == 0);
 
         Shader::Type type;
@@ -1922,6 +1921,7 @@ struct Level : IGame {
 
         Core::setViewProj(mView, mProj);
         Core::pass = pass;
+        #endif
     }
 
     void prepareRooms(RoomDesc *roomsList, int roomsCount) {
@@ -2440,7 +2440,7 @@ struct Level : IGame {
             Core::setBlendMode(bmPremult);
             renderEntitiesTransp(transp);
 
-        #if !defined(FFP) && !defined(_OS_DC)
+        #if !defined(FFP) //&& !defined(_OS_DC)
             Core::setFog(FOG_NONE);
             Core::whiteTex->bind(sDiffuse);
             Core::setBlendMode(bmMult);
@@ -3236,7 +3236,7 @@ struct Level : IGame {
             ambientCache->processQueue();
         }
 
-    #if !defined(FFP) && !defined(_OS_DC)
+    #if !defined(FFP) //&& !defined(_OS_DC)
         if (shadow[0] && players[0]) {
             player = players[0];
             renderShadows(player->getRoomIndex(), shadow[0]);
