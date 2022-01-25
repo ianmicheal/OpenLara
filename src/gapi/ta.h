@@ -789,14 +789,14 @@ namespace GAPI
         load_matrix(&m_Matrix[2].m);
         
 		uint8 R, G, B, A;
-		R = clamp(int(result.x * argb[0]), 0, 255);
-		G = clamp(int(result.y * argb[1]), 0, 255);
-		B = clamp(int(result.z * argb[2]), 0, 255);
+		R = clamp(int(result.x * argb[0]), int(argb[0]), 255);
+		G = clamp(int(result.y * argb[1]), int(argb[1]), 255);
+		B = clamp(int(result.z * argb[2]), int(argb[2]), 255);
 		A = argb[3];
 		/* RGB might be wrong */
-		R = (R==0)? 100: R;
-		G = (G==0)? 100: G;
-		B = (B==0)? 100: B;
+		//R = (R==0)? 100: R;
+		//G = (G==0)? 100: G;
+		//B = (B==0)? 100: B;
 
 		return A << 24 | R << 16 | G << 8 | B;
     }
