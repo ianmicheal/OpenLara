@@ -1511,6 +1511,7 @@ namespace TR {
 
     const char* getGameLogo(Version version) {
         if (version & VER_TR1) {
+            CHECK_FILE("FMV/CORE.ROQ");
             CHECK_FILE("FMV/CORELOGO.FMV");
             CHECK_FILE("FMV/CORE.RPL");
             CHECK_FILE("FMV/CORELOGO.CPK");
@@ -1540,6 +1541,7 @@ namespace TR {
         // TR1
             case LVL_TR1_TITLE :
                 if (isGameEnded) {
+                    CHECK_FILE("FMV/END.ROQ");
                     CHECK_FILE("FMV/END.FMV");
                     CHECK_FILE("FMV/END.RPL");
                     CHECK_FILE("FMV/END.CPK");
@@ -1547,6 +1549,7 @@ namespace TR {
                     CHECK_FILE("video/1/END.RPL");
                     CHECK_FILE("video/1/END.CPK");
                 } else {
+                    CHECK_FILE("FMV/CAFE.ROQ");
                     CHECK_FILE("FMV/CAFE.FMV");
                     CHECK_FILE("FMV/CAFE.RPL");
                     CHECK_FILE("FMV/CAFE.CPK");
@@ -1556,6 +1559,7 @@ namespace TR {
                 }
                 break;
             case LVL_TR1_GYM :
+                CHECK_FILE("FMV/MANSION.ROQ");
                 CHECK_FILE("FMV/MANSION.FMV");
                 CHECK_FILE("FMV/MANSION.RPL");
                 CHECK_FILE("FMV/MANSION.CPK");
@@ -1564,6 +1568,7 @@ namespace TR {
                 CHECK_FILE("video/1/MANSION.CPK");
                 break;
             case LVL_TR1_1 :
+                CHECK_FILE("FMV/SNOW.ROQ");
                 CHECK_FILE("FMV/SNOW.FMV");
                 CHECK_FILE("FMV/SNOW.RPL");
                 CHECK_FILE("FMV/SNOW.CPK");
@@ -1572,6 +1577,7 @@ namespace TR {
                 CHECK_FILE("video/1/SNOW.CPK");
                 break;
             case LVL_TR1_4 :
+                CHECK_FILE("FMV/LIFT.ROQ");
                 CHECK_FILE("FMV/LIFT.FMV");
                 CHECK_FILE("FMV/LIFT.RPL");
                 CHECK_FILE("FMV/LIFT.CPK");
@@ -1580,6 +1586,7 @@ namespace TR {
                 CHECK_FILE("video/1/LIFT.CPK");
                 break;
             case LVL_TR1_8A :
+                CHECK_FILE("FMV/VISION.ROQ");
                 CHECK_FILE("FMV/VISION.FMV");
                 CHECK_FILE("FMV/VISION.RPL");
                 CHECK_FILE("FMV/VISION.CPK");
@@ -1588,6 +1595,7 @@ namespace TR {
                 CHECK_FILE("video/1/VISION.CPK");
                 break;
             case LVL_TR1_10A :
+                CHECK_FILE("FMV/CANYON.ROQ");
                 CHECK_FILE("FMV/CANYON.FMV");
                 CHECK_FILE("FMV/CANYON.RPL");
                 CHECK_FILE("FMV/CANYON.CPK");
@@ -1596,6 +1604,7 @@ namespace TR {
                 CHECK_FILE("video/1/CANYON.CPK");
                 break;
             case LVL_TR1_10B :
+                CHECK_FILE("FMV/PYRAMID.ROQ");
                 CHECK_FILE("FMV/PYRAMID.FMV");
                 CHECK_FILE("FMV/PYRAMID.RPL");
                 CHECK_FILE("FMV/PYRAMID.CPK");
@@ -1604,6 +1613,7 @@ namespace TR {
                 CHECK_FILE("video/1/PYRAMID.CPK");
                 break;
             case LVL_TR1_CUT_4 :
+                CHECK_FILE("FMV/PRISON.ROQ");
                 CHECK_FILE("FMV/PRISON.FMV");
                 CHECK_FILE("FMV/PRISON.RPL");
                 CHECK_FILE("FMV/PRISON.CPK");
@@ -1612,6 +1622,7 @@ namespace TR {
                 CHECK_FILE("video/1/PRISON.CPK");
                 break;
             case LVL_TR1_EGYPT :
+                CHECK_FILE("FMV/END.ROQ");
                 CHECK_FILE("FMV/END.FMV");
                 CHECK_FILE("FMV/END.RPL");
                 CHECK_FILE("FMV/END.CPK");

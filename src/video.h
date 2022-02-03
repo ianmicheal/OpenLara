@@ -1463,11 +1463,514 @@ struct Video {
             return count;
         }
     };
+    
+    
+    
+    struct ROQ : Decoder {
+		#define RoQ_INFO           0x1001
+		#define RoQ_QUAD_CODEBOOK  0x1002
+		#define RoQ_QUAD_VQ        0x1011
+		#define RoQ_SOUND_MONO     0x1020
+		#define RoQ_SOUND_STEREO   0x1021
+		#define RoQ_SIGNATURE      0x1084
+		
+		#define ROQ_CODEBOOK_SIZE 256
+		#define MAX_BUF_SIZE (64 * 1024)
+		
+		unsigned char *read_buffer;
+		Sound::Decoder *audioDecoder;
+		Stream *sndstream;
+		
+		typedef struct
+		{
+			uint16 chunk_id;
+			uint32 chunk_size;
+			uint16 chunk_arg;
+		} chunk_hdr;
+		
+		typedef struct
+		{
+			int mb_width;
+			int mb_height;
+			int mb_count;
+
+			int current_frame;
+			unsigned short *frame[2];
+			int stride;
+			int texture_height;
+
+			unsigned short cb2x2[ROQ_CODEBOOK_SIZE][4];
+			unsigned short cb4x4[ROQ_CODEBOOK_SIZE][16];
+		} roq_state;
+		
+		roq_state state;
+		
+		/*struct roq_audio
+		{
+			 int pcm_samples;
+			 int channels;
+			 int position;
+			 short snd_sqr_arr[260];
+			 uint16 pcm_sample[MAX_BUF_SIZE/2];
+		} roq_audio;*/
+		
+		ROQ(Stream *stream) : Decoder(stream)/*, audioDecoder(NULL)*/ {
+			stream->seek(6); // skip RoQ SIGNATURE
+			fps = stream->readLE16();
+			ASSERTV(stream->readLE16() == RoQ_INFO);
+			ASSERTV(stream->readLE32() == 8);
+			ASSERTV(stream->readLE16() == 0);
+			width  = stream->readLE16();
+			height = stream->readLE16();
+			stream->seek(4);
+			read_buffer = new uint8[MAX_BUF_SIZE];
+			
+			state.mb_width = width / 16;
+            state.mb_height = height / 16;
+            state.mb_count = state.mb_width * state.mb_height;
+            
+            state.stride = 8;
+            while (state.stride < width)
+				state.stride <<= 1;
+			
+			width = state.stride;
+			
+			state.texture_height = 8;
+                
+            while (state.texture_height < height)
+				state.texture_height <<= 1;
+			
+			height = state.texture_height;
+			
+			state.frame[0] = new uint16[state.texture_height * state.stride * 2];
+            state.frame[1] = new uint16[state.texture_height * state.stride * 2];
+            state.current_frame = 0;
+            
+            memset(state.frame[0], 0, state.texture_height * state.stride * sizeof(unsigned short));
+            memset(state.frame[1], 0, state.texture_height * state.stride * sizeof(unsigned short));
+            
+            // Initialize Audio SQRT Look-Up Table 
+			/*for(int i = 0; i < 128; i++)
+			{
+				roq_audio.snd_sqr_arr[i] = i * i;
+				roq_audio.snd_sqr_arr[i + 128] = -(i * i);
+			}
+			roq_audio.position = 0;
+			roq_audio.pcm_samples = 0;*/
+			
+			
+			char str[64];
+			int len = strlen(stream->name);
+			strcpy(str, stream->name);
+			
+			str[len-3] = 'P';
+			str[len-2] = 'C';
+			str[len-1] = 'M';
+			
+			if (Stream::existsContent(str))
+			{
+				sndstream = new Stream(str, NULL, this);
+				audioDecoder = new Sound::PCM(sndstream, 2, 22050, 0x7FFFFF, 16);
+			}
+		}
+		
+		virtual ~ROQ() {
+			{
+                OS_LOCK(Sound::lock);
+                audioDecoder->stream = NULL;
+                delete audioDecoder;
+            }
+            delete[] read_buffer;
+            delete[] state.frame[0];
+            delete[] state.frame[1];
+        }
+        
+        virtual bool decodeVideo(Color32 *pixels) {
+			chunk_hdr head;
+			
+			while (1)
+			{
+				if (stream->size-stream->pos < 8)
+				{
+					return false;
+				}
+				
+				head.chunk_id   = stream->readLE16();
+				head.chunk_size = stream->readLE32();
+				head.chunk_arg  = stream->readLE16();
+				
+				stream->raw(read_buffer, head.chunk_size);
+				
+				switch (head.chunk_id)
+				{
+					case RoQ_QUAD_CODEBOOK:
+					{
+						roq_unpack_quad_codebook(read_buffer, head.chunk_size, head.chunk_arg, &state);
+						break;
+					}
+					case RoQ_QUAD_VQ:
+					{
+						roq_unpack_vq(read_buffer, head.chunk_size, head.chunk_arg, &state);
+						int len = state.texture_height * state.stride;
+						uint16 *src = (uint16 *) state.frame[state.current_frame];
+						
+						for (int i=0; i < len; i++) 
+						{
+							int c = *src++;
+							*pixels++ = ((c & 0xF800) >> 8) | ((c & 0x7E0) << 5) | ((c & 0x1F) << 19);
+						}
+						
+						return true;
+						break;
+					}
+					/*case RoQ_SOUND_STEREO:
+					{
+						int snd_left, snd_right;
+						roq_audio.channels = 2;
+						roq_audio.pcm_samples = head.chunk_size/2;
+						snd_left = (head.chunk_arg & 0xFF00);
+						snd_right = (head.chunk_arg & 0xFF) << 8;
+						
+						for(int i = 0; i < head.chunk_size; i += 2)
+						{
+							snd_left  += roq_audio.snd_sqr_arr[read_buffer[i]];
+							snd_right += roq_audio.snd_sqr_arr[read_buffer[i+1]];
+							roq_audio.pcm_sample[i + 0] = snd_left & 0xffff;
+							roq_audio.pcm_sample[i + 1] = snd_right & 0xffff;
+							//roq_audio.pcm_sample[i * 2 + 2] =  snd_right & 0xff;
+							//roq_audio.pcm_sample[i * 2 + 3] = (snd_right & 0xff00) >> 8;
+						}
+						roq_audio.position = 0;
+						break;
+					}*/
+				}
+				
+			}
+			
+			return false;
+		}
+		
+		int roq_unpack_quad_codebook(unsigned char *buf, int size, int arg, roq_state *state)
+		{
+			int y[4];
+			int yp, u, v;
+			int r, g, b;
+			int count2x2;
+			int count4x4;
+			int i, j;
+			unsigned short *v2x2;
+			unsigned short *v4x4;
+
+			count2x2 = (arg >> 8) & 0xFF;
+			count4x4 =  arg       & 0xFF;
+
+			if (!count2x2)
+				count2x2 = ROQ_CODEBOOK_SIZE;
+			/* 0x00 means 256 4x4 vectors iff there is enough space in the chunk
+			 * after accounting for the 2x2 vectors */
+			if (!count4x4 && count2x2 * 6 < size)
+				count4x4 = ROQ_CODEBOOK_SIZE;
+
+			/* size sanity check */
+			if ((count2x2 * 6 + count4x4 * 4) != size)
+			{
+				return 0;
+			}
+
+			/* unpack the 2x2 vectors */
+			for (i = 0; i < count2x2; i++)
+			{
+				/* unpack the YUV components from the bytestream */
+				for (j = 0; j < 4; j++)
+				{
+					y[j] = *buf++;
+				}
+				
+				u  = *buf++;
+				v  = *buf++;
+
+				/* convert to RGB565 */
+				for (j = 0; j < 4; j++)
+				{
+					yp = (y[j] - 16) * 1.164;
+					r = (yp + 1.596 * (v - 128)) / 8;
+					g = (yp - 0.813 * (v - 128) - 0.391 * (u - 128)) / 4;
+					b = (yp + 2.018 * (u - 128)) / 8;
+
+					if (r < 0) r = 0;
+					if (r > 31) r = 31;
+					if (g < 0) g = 0;
+					if (g > 63) g = 63;
+					if (b < 0) b = 0;
+					if (b > 31) b = 31;
+
+					state->cb2x2[i][j] = ((r << 11) | (g << 5) | (b << 0));
+				}
+			}
+
+			/* unpack the 4x4 vectors */
+			for (i = 0; i < count4x4; i++)
+			{
+				for (j = 0; j < 4; j++)
+				{
+					v2x2 = state->cb2x2[*buf++];
+					v4x4 = state->cb4x4[i] + (j / 2) * 8 + (j % 2) * 2;
+					v4x4[0] = v2x2[0];
+					v4x4[1] = v2x2[1];
+					v4x4[4] = v2x2[2];
+					v4x4[5] = v2x2[3];
+				}
+			}
+
+			return 1;
+		}
+
+		#define GET_BYTE(x) \
+			if (index >= size) { \
+				status = 0; \
+				x = 0; \
+			} else { \
+				x = buf[index++]; \
+			}
+
+		#define GET_MODE() \
+			if (!mode_count) { \
+				GET_BYTE(mode_lo); \
+				GET_BYTE(mode_hi); \
+				mode_set = (mode_hi << 8) | mode_lo; \
+				mode_count = 16; \
+			} \
+			mode_count -= 2; \
+			mode = (mode_set >> mode_count) & 0x03;
+
+		int roq_unpack_vq(unsigned char *buf, int size, unsigned int arg, roq_state *state)
+		{
+			int status = 1;
+			int mb_x, mb_y;
+			int block;     /* 8x8 blocks */
+			int subblock;  /* 4x4 blocks */
+			int stride = state->stride;
+			int i;
+
+			/* frame and pixel management */
+			unsigned short *this_frame;
+			unsigned short *last_frame;
+
+			int line_offset;
+			int mb_offset;
+			int block_offset;
+			int subblock_offset;
+
+			unsigned short *this_ptr;
+			unsigned int *this_ptr32;
+			unsigned short *last_ptr;
+			/*unsigned int *last_ptr32;*/
+			unsigned short *vector16;
+			unsigned int *vector32;
+			int stride32 = stride / 2;
+
+			/* bytestream management */
+			int index = 0;
+			int mode_set = 0;
+			int mode, mode_lo, mode_hi;
+			int mode_count = 0;
+
+			/* vectors */
+			int mx, my;
+			int motion_x, motion_y;
+			unsigned char data_byte;
+
+			mx = (arg >> 8) & 0xFF;
+			my =  arg       & 0xFF;
+
+			if (state->current_frame == 1)
+			{
+				state->current_frame = 0;
+				this_frame = state->frame[0];
+				last_frame = state->frame[1];
+			}
+			else
+			{
+				state->current_frame = 1;
+				this_frame = state->frame[1];
+				last_frame = state->frame[0];
+			}
+
+			for (mb_y = 0; mb_y < state->mb_height && status == 1; mb_y++)
+			{
+				line_offset = mb_y * 16 * stride;
+				
+				for (mb_x = 0; mb_x < state->mb_width && status == 1; mb_x++)
+				{
+					mb_offset = line_offset + mb_x * 16;
+					for (block = 0; block < 4 && status == 1; block++)
+					{
+						block_offset = mb_offset + (block / 2 * 8 * stride) + (block % 2 * 8);
+						/* each 8x8 block gets a mode */
+						GET_MODE();
+						switch (mode)
+						{
+						case 0:  /* MOT: skip */
+							break;
+
+						case 1:  /* FCC: motion compensation */
+							/* this needs to be done 16 bits at a time due to
+							 * data alignment issues on the SH-4 */
+							GET_BYTE(data_byte);
+							motion_x = 8 - (data_byte >>  4) - mx;
+							motion_y = 8 - (data_byte & 0xF) - my;
+							last_ptr = last_frame + block_offset + (motion_y * stride) + motion_x;
+							this_ptr = this_frame + block_offset;
+							for (i = 0; i < 8; i++)
+							{
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+								*this_ptr++ = *last_ptr++;
+
+								last_ptr += stride - 8;
+								this_ptr += stride - 8;
+							}
+							break;
+
+						case 2:  /* SLD: upsample 4x4 vector */
+							GET_BYTE(data_byte);
+							vector16 = state->cb4x4[data_byte];
+							for (i = 0; i < 4*4; i++)
+							{
+								this_ptr = this_frame + block_offset +
+									(i / 4 * 2 * stride) + (i % 4 * 2);
+								this_ptr[0] = *vector16;
+								this_ptr[1] = *vector16;
+								this_ptr[stride+0] = *vector16;
+								this_ptr[stride+1] = *vector16;
+								vector16++;
+							}
+							break;
+
+						case 3:  /* CCC: subdivide into 4 subblocks */
+							for (subblock = 0; subblock < 4; subblock++)
+							{
+								subblock_offset = block_offset + (subblock / 2 * 4 * stride) + (subblock % 2 * 4);
+
+								GET_MODE();
+								switch (mode)
+								{
+									case 0:  /* MOT: skip */
+										break;
+
+									case 1:  /* FCC: motion compensation */
+										GET_BYTE(data_byte);
+										motion_x = 8 - (data_byte >>  4) - mx;
+										motion_y = 8 - (data_byte & 0xF) - my;
+										last_ptr = last_frame + subblock_offset +
+											(motion_y * stride) + motion_x;
+										this_ptr = this_frame + subblock_offset;
+										for (i = 0; i < 4; i++)
+										{
+											*this_ptr++ = *last_ptr++;
+											*this_ptr++ = *last_ptr++;
+											*this_ptr++ = *last_ptr++;
+											*this_ptr++ = *last_ptr++;
+
+											last_ptr += stride - 4;
+											this_ptr += stride - 4;
+										}
+										break;
+
+									case 2:  /* SLD: use 4x4 vector from codebook */
+										GET_BYTE(data_byte);
+										vector32 = (unsigned int*)state->cb4x4[data_byte];
+
+										this_ptr32 = (unsigned int*)this_frame;
+										this_ptr32 += subblock_offset / 2;
+										for (i = 0; i < 4; i++)
+										{
+											*this_ptr32++ = *vector32++;
+											*this_ptr32++ = *vector32++;
+
+
+											this_ptr32 += stride32 - 2;
+										}
+										break;
+
+									case 3:  /* CCC: subdivide into 4 subblocks */
+										GET_BYTE(data_byte);
+										vector16 = state->cb2x2[data_byte];
+										this_ptr = this_frame + subblock_offset;
+
+
+										this_ptr[0] = vector16[0];
+										this_ptr[1] = vector16[1];
+										this_ptr[stride+0] = vector16[2];
+										this_ptr[stride+1] = vector16[3];
+
+										GET_BYTE(data_byte);
+										vector16 = state->cb2x2[data_byte];
+
+
+										this_ptr[2] = vector16[0];
+										this_ptr[3] = vector16[1];
+										this_ptr[stride+2] = vector16[2];
+										this_ptr[stride+3] = vector16[3];
+
+										this_ptr += stride * 2;
+
+										GET_BYTE(data_byte);
+										vector16 = state->cb2x2[data_byte];
+
+
+										this_ptr[0] = vector16[0];
+										this_ptr[1] = vector16[1];
+										this_ptr[stride+0] = vector16[2];
+										this_ptr[stride+1] = vector16[3];
+
+										GET_BYTE(data_byte);
+										vector16 = state->cb2x2[data_byte];
+
+
+										this_ptr[2] = vector16[0];
+										this_ptr[3] = vector16[1];
+										this_ptr[stride+2] = vector16[2];
+										this_ptr[stride+3] = vector16[3];
+
+										break;
+								}
+							}
+							break;
+						}
+					}
+				}
+			}
+
+			/* sanity check to see if the stream was fully consumed */
+			if (status == 1 && index < size-2)
+			{
+				status = 0;
+			}
+
+			return status;
+		}
+		
+		virtual int decode(Sound::Frame *frames, int count) {
+			for (int i = 0; i < count; i+=2)
+			{
+				audioDecoder->decode(&frames[i], count-i);
+			}
+			
+			return count;
+		}
+	};
 
     enum Format {
         PC,
         PSX,
         SAT,
+        DC,
     } format;
 
     Sound::Sample *sample;
@@ -1503,6 +2006,9 @@ struct Video {
         } else if (magic == FOURCC("ARMo")) {
             format  = PC;
             decoder = new Escape(stream);
+        } else if(magic == 0xFFFF1084) {
+			format  = DC;
+			decoder = new ROQ(stream);
         } else {
             format  = PSX;
             decoder = new STR(stream);
@@ -1514,13 +2020,15 @@ struct Video {
         for (int i = 0; i < 2; i++) {
             frameTex[i] = new Texture(decoder->width, decoder->height, 1, FMT_RGBA, OPT_DYNAMIC, frameData);
         }
+        
+        printf("%s\n", stream->name);
 
         if (!TR::getVideoTrack(id, playAsync, this)) {
-            sample = Sound::play(decoder);
-            sample->pitch = pitch;
-            if (sample) {
-                sample->pitch = pitch;
-            }
+			sample = Sound::play(decoder);
+			
+			if (sample) {
+				sample->pitch = pitch;
+			}
         }
 
         step      = 1.0f / decoder->fps;

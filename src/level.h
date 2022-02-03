@@ -1770,6 +1770,7 @@ struct Level : IGame {
             for (int i = 0; i < level.tilesCount; i++) {
                 char buf[256];
                 sprintf(buf, "texture/%s_%d.png", TR::LEVEL_INFO[level.id].name, i);
+                printf("[init tex] %s\n",buf);
                 if (Stream::exists(buf)) {
                     Stream stream(buf);
                     delete[] tiles[i].data;
