@@ -173,7 +173,7 @@ void osMutexUnlock(void *obj)
 
 // sound
 #define SND_FRAME_SIZE  4
-#define SND_FRAMES      1024
+#define SND_FRAMES      512
 
 Sound::Frame     sndBuf[SND_FRAMES] __attribute__((aligned(2)));
 
@@ -213,8 +213,8 @@ static void sndUpdate()
 	
 	//n = n + fillpos + (ring_buffer_samples - fillpos)
 	
-	if (n < 100)
-		return;
+	/*if (n < 100)
+		return;*/
 	
 	//printf("playpos %ld ", n);
 	Sound::fill(sndBuf, SND_FRAMES);
@@ -227,7 +227,7 @@ void sndInit()
 	stop_sound();
 	do_sound_command(CMD_SET_BUFFER(3));
 	do_sound_command(CMD_SET_STEREO(1));
-	do_sound_command(CMD_SET_FREQ_EXP(FREQ_44100_EXP));
+	do_sound_command(CMD_SET_FREQ_EXP(FREQ_22050_EXP));
 	
 	memset(sndBuf, 0, SND_FRAMES * SND_FRAME_SIZE);
 	

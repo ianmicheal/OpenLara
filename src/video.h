@@ -1570,7 +1570,7 @@ struct Video {
 			if (Stream::existsContent(str))
 			{
 				sndstream = new Stream(str, NULL, this);
-				audioDecoder = new Sound::PCM(sndstream, 2, 22050, 0x7FFFFF, 16);
+				audioDecoder = new Sound::PCM(sndstream, 2, 22050, sndstream->size, 16);
 			}
 		}
 		
@@ -1579,6 +1579,7 @@ struct Video {
                 OS_LOCK(Sound::lock);
                 audioDecoder->stream = NULL;
                 delete audioDecoder;
+                //delete sndstream;
             }
             delete[] read_buffer;
             delete[] state.frame[0];
@@ -1957,9 +1958,17 @@ struct Video {
 		}
 		
 		virtual int decode(Sound::Frame *frames, int count) {
-			for (int i = 0; i < count; i+=2)
+			if (!audioDecoder) 
+				return 0;
+			
+			//int part = min(count, (sndstream->size-sndstream->pos)/4);
+			
+			for (int i = 0; i < count; i++)
 			{
-				audioDecoder->decode(&frames[i], count-i);
+				if(!audioDecoder->decode(&frames[i], count-i))
+				{
+					memset(&frames[i], 0, 4);
+				}
 			}
 			
 			return count;

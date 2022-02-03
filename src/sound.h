@@ -161,7 +161,7 @@ namespace Sound {
                 float V = size.x * size.y * size.z;
                 float f = 0.1f; // absorption factor
                 float rt60 = 0.161f * (V / (S * f));
-                float k = -10.0f / (44100.0f * rt60);
+                float k = -10.0f / (22050.0f * rt60);
 
                 for (int i = 0; i < MAX_FDN; i++) {
                     float v = powf(10.0f, FDN[i] * k);
@@ -223,7 +223,7 @@ namespace Sound {
         virtual void replay() { stream->seek(offset - stream->pos); }
 
         int resample(Sound::Frame *frames, Sound::Frame &frame) {
-            if (freq == 44100) {
+            if (freq == 22050) {
                 frames[0] = frame;
                 return 1;
             }
@@ -231,7 +231,7 @@ namespace Sound {
             int dL = int(frame.L) - int(prevFrame.L);
             int dR = int(frame.R) - int(prevFrame.R);
             switch (freq) {
-                case 11025 :
+                /*case 11025 :
                     if (channels == 2) {
                         frames[0].L = prevFrame.L + dL / 4;                   // 0.25 L
                         frames[0].R = prevFrame.R + dR / 4;                   // 0.25 R
@@ -245,8 +245,9 @@ namespace Sound {
                         frames[2].L = frames[2].R = prevFrame.L + dL * 3 / 4; // 0.75 LR
                     }
                     frames[3] = prevFrame = frame;                            // 1.00 LR
-                    return 4;
-                case 22050 :
+                    return 4;*/
+                //case 22050 :
+                case 11025 :
                     if (channels == 2) {
                         frames[0].L = prevFrame.L + dL / 2;                   // 0.50 L
                         frames[0].R = prevFrame.R + dR / 2;                   // 0.50 R
@@ -256,7 +257,7 @@ namespace Sound {
                     return 2;
                 default    : // impossible
                     ASSERT(false);
-                    int k = 44100 / freq;
+                    int k = 22050 / freq;
                     for (int i = 0; i < k; i++) frames[i] = frame; // no lerp
                     return k;
             }        
@@ -379,7 +380,7 @@ namespace Sound {
                         return 2;
                     }
                 } else {
-                    ASSERT(freq == 44100);
+                    ASSERT(freq == 22050);
                     ASSERT(count >= 2);
                     frames[0].L = channel[0].sample2;
                     frames[0].R = channel[1].sample2;
@@ -409,7 +410,7 @@ namespace Sound {
                         return 2;
                     }
                 } else {
-                    ASSERT(freq == 44100);
+                    ASSERT(freq == 22050);
                     frames[0].L = channel[0].predicate(n1);
                     frames[0].R = channel[1].predicate(n2);
                     return 1;
@@ -513,10 +514,12 @@ namespace Sound {
 
         void resample(Frame *frames, short value) {
             predicate(value);
-            frames[0].L = frames[0].R = s2 + (s1 - s2) / 4;     // 0.25
+            /*frames[0].L = frames[0].R = s2 + (s1 - s2) / 4;     // 0.25
             frames[1].L = frames[1].R = s2 + (s1 - s2) / 2;     // 0.50
             frames[2].L = frames[2].R = s2 + (s1 - s2) * 3 / 4; // 0.75
-            frames[3].L = frames[3].R = s1;                     // 1.00
+            frames[3].L = frames[3].R = s1;                     // 1.00*/
+            frames[0].L = frames[1].R = s2 + (s1 - s2) / 2;     // 0.50
+            frames[1].L = frames[3].R = s1;                     // 1.00
         }
 
         int processBlock() {
@@ -969,7 +972,7 @@ namespace Sound {
 
             if (time > 0.0f)
             {
-                volumeDelta /= 44100.0f * time;
+                volumeDelta /= 22050.0f * time;
             }
         }
 
