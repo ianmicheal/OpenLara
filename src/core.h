@@ -248,8 +248,6 @@
     #endif
 #elif defined(_OS_DC)
     #define SPLIT_BY_TILE
-    //#define MERGE_SPRITES
-	//#define MERGE_MODELS
 #else
     // current etnaviv driver implementation uses uncompatible Mesa GLSL compiler
     // it produce unimplemented TRUNC/ARL instructions instead of F2I
@@ -263,7 +261,7 @@
 
 #include "utils.h"
 
-#if defined(_OS_3DS) //|| defined(_OS_DC)
+#if defined(_OS_3DS)
     #define SHADOW_TEX_SIZE      512
 #elif defined(_OS_GCW0)
     #define SHADOW_TEX_SIZE      256
@@ -422,7 +420,7 @@ namespace Core {
             }
 
             void setWater(Quality value) {
-            #if defined(_GAPI_SW) || defined(_GAPI_GU) //|| defined(_GAPI_TA)
+            #if defined(_GAPI_SW) || defined(_GAPI_GU) || defined(_GAPI_TA)
                 water = LOW;
             #else
                 if (value > LOW && !(support.texFloat || support.texHalf))

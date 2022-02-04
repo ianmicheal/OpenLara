@@ -362,7 +362,7 @@ struct Level : IGame {
         delete shadow[0];
         delete shadow[1];
         shadow[0] = shadow[1] = NULL;
-    #if !defined(FFP) //&& !defined(_OS_DC)
+    #if !defined(FFP) && !defined(_OS_DC)
         if (Core::settings.detail.shadows > Core::Settings::LOW) {
             if (level.isTitle())
                 shadow[0] = new Texture(32, 32, 1, FMT_SHADOW); // init dummy shadow map
@@ -1732,8 +1732,9 @@ struct Level : IGame {
 
     #else
         ASSERT(level.tilesCount);
-
-        #if defined(_GAPI_SW)
+		UI::patchGlyphs(level);
+        
+        #if defined(_GAPI_SW) || defined(_GAPI_DC)
             atlasRooms   =
             atlasObjects =
             atlasSprites =
@@ -3459,12 +3460,20 @@ struct Level : IGame {
                 pos = vec2(UI::width - 32 - size.x, 32);
 
             if (!player->dozy && (player->stand == Lara::STAND_ONWATER || player->stand == Character::STAND_UNDERWATER)) {
+		#ifdef _OS_DC
+                UI::renderBar(CTEX_OXYGEN, pos, size, oxygen, 0x80CA7010);
+        #else
                 UI::renderBar(CTEX_OXYGEN, pos, size, oxygen);
+        #endif
                 pos.y += 16.0f;
             }
 
             if ((!inventory->active && ((player->wpnReady() && !player->emptyHands()) || player->damageTime > 0.0f || health <= 0.2f))) {
+		#ifdef _OS_DC
+                UI::renderBar(CTEX_HEALTH, pos, size, health, 0x801070CA);
+        #else
                 UI::renderBar(CTEX_HEALTH, pos, size, health);
+        #endif
                 pos.y += 32.0f;
 
                 if (!inventory->active && !player->emptyHands()) { // ammo

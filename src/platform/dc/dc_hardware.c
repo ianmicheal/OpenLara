@@ -37,7 +37,7 @@ void pvr_set_bg_color(float r, float g, float b) {
     ta_bg_list.color3 = color;
 
 #ifndef NOSERIAL
-    printf("[%s] color =0x%x\n", __func__, color);
+    //printf("[%s] color =0x%x\n", __func__, color);
 #endif
 }
 
@@ -46,7 +46,7 @@ pvr_ptr_t pvr_mem_malloc(size_t size)
   void *ret = psp_valloc(size);
 
 #ifndef NOSERIAL
-  printf("[%s] tex = %p size 0x%x\n", __func__, ret, size);
+  //printf("[%s] tex = %p size 0x%x\n", __func__, ret, size);
 #endif
   return (pvr_ptr_t)ret;
 }
@@ -54,7 +54,7 @@ pvr_ptr_t pvr_mem_malloc(size_t size)
 void pvr_mem_free(pvr_ptr_t chunk)
 {
 #ifndef NOSERIAL
-  printf("[%s] tex = %p\n", __func__, chunk);
+  //printf("[%s] tex = %p\n", __func__, chunk);
 #endif
   
   psp_vfree(chunk);

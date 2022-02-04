@@ -8,7 +8,7 @@
 
 #define INV_MAX_ITEMS  32
 #define INV_MAX_RADIUS 688.0f
-#if defined(_OS_PSP) || defined(_OS_3DS) || defined(_OS_GCW0)
+#if defined(_OS_PSP) || defined(_OS_3DS) || defined(_OS_GCW0) || defined(_OS_DC)
     #define INV_BG_SIZE    256
 #else
     #define INV_BG_SIZE    512
@@ -140,12 +140,18 @@ static const OptionItem optDetail[] = {
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_FILTER,   SETTINGS( detail.filter    ), STR_QUALITY_LOW, 0, 2 ),
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_LIGHTING, SETTINGS( detail.lighting  ), STR_QUALITY_LOW, 0, 2 ),
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_SHADOWS,  SETTINGS( detail.shadows   ), STR_QUALITY_LOW, 0, 2 ),
+#ifndef _OS_DC
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_WATER,    SETTINGS( detail.water     ), STR_QUALITY_LOW, 0, 2 ),
 #endif
+#endif
+#ifndef _OS_DC
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_SIMPLE_ITEMS,    SETTINGS( detail.simple    ), STR_OFF, 0, 1 ),
+#endif
 #ifdef INV_QUALITY
+#ifndef _OS_DC
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_RESOLUTION,      SETTINGS( detail.scale     ), STR_SCALE_100, 0, 3 ),
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_VSYNC,    SETTINGS( detail.vsync     ), STR_OFF, 0, 1 ),
+#endif
 #endif
 #ifdef INV_STEREO
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_STEREO,   SETTINGS( detail.stereo    ), STR_NO_STEREO, 0, 
@@ -1640,8 +1646,11 @@ struct Inventory {
                         pos = vec2(UI::width - 32 - size.x, 32);
                     }
                 }
-
+            #ifdef _OS_DC
+                UI::renderBar(CTEX_HEALTH, pos, size, health, 0x801070CA);
+			#else
                 UI::renderBar(CTEX_HEALTH, pos, size, health);
+			#endif
             }
         }
 

@@ -1961,8 +1961,6 @@ struct Video {
 			if (!audioDecoder) 
 				return 0;
 			
-			//int part = min(count, (sndstream->size-sndstream->pos)/4);
-			
 			for (int i = 0; i < count; i++)
 			{
 				if(!audioDecoder->decode(&frames[i], count-i))

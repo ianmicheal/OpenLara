@@ -40,10 +40,6 @@ $(TARGET): $(OBJS)
 clean:
 	$(RM) $(OBJS) $(TARGET)
 
-partial:
-	$(RM) main.o $(TARGET)
-	make all
-
 run: $(TARGET)
 	$(KOS_LOADER) $(TARGET) -i TR1.iso
 
@@ -53,19 +49,13 @@ runpc: $(TARGET)
 runss: $(TARGET)
 	$(KOS_LOADER) $(TARGET) -i TR1SS.iso
 
-dump: $(TARGET)
-	$(SH_ELF_BIN)/sh-elf-objdump -D $< > dump
-
 distclean:
-	$(RM) *.ISO *.CDI *.BIN *.elf *.bin *.iso ip.txt cd/1ST_READ.BIN
+	rm -f *.ISO *.CDI *.BIN *.elf *.bin *.iso cd/1ST_READ.BIN
 
 dist: 1ST_READ.BIN
 
 1ST_READ.BIN: demo.bin
 	$(KOS_BASE)/utils/scramble/scramble $< $@
-
-ip.txt: ip.txt.in
-	 sed -e 's/[@]DATE[@]/$(shell date '+%Y%m%d')/' < $< > $@ 
 
 demo.bin: $(TARGET)
 	$(SH_ELF_BIN)/sh-elf-objcopy -S -R .stack -O binary $< $@
@@ -73,24 +63,13 @@ demo.bin: $(TARGET)
 runbin: demo.bin
 	$(KOS_LOADER) demo.bin -i TR1.iso
 
-IP.BIN: ip.txt
-	makeip $< $@
-
-dcdist: dist
-	cp 1ST_READ.BIN $(HOME)/Documents/dcdev/dcdist/
-	mkisofs -C 0,11702 -G cd/IP.BIN -l -o TMP.ISO $(HOME)/Documents/dcdev/dcdist
-	./cdi4dc TMP.ISO TEST.CDI
-
 cdi: dist
 	cp 1ST_READ.BIN cd/
 	mkisofs -C 0,11702 -G cd/IP.BIN -l -o TMP.ISO cd
 	./cdi4dc TMP.ISO 'OpenLara.cdi'
 
 rel:
-	p7zip 'OpenLara_dc_$(shell date '+%Y%m%d').CDI'
-
-demul:
-	/mnt/c/opt/demul/demul.exe -run=dc -image=TEST.CDI
+	p7zip 'OpenLara.cdi'
 
 banner_data:
 	echo 'static unsigned char banner_data[] = {' >> $@.tmp
