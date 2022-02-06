@@ -5,9 +5,9 @@
 
 #include "game.h"
 
-
 #include <ronin/ronin.h>
 #include <ronin/soundcommon.h>
+#include <ronin/vibro.h>
 
 #include "private.h"
 #include "vm_file.h"
@@ -364,14 +364,46 @@ bool osJoyReady(int index)
     return index == 0;
 }
 
+static struct vibroinfo rumble;
+static bool rumble_present = 0;
+
 void osJoyVibrate(int index, float L, float R) 
 {
-    // TODO
+    if (index == 0 && rumble_present)
+	{
+		vibro_const_vibration(&rumble, L != 0.0);
+	}
 }
 
 void joyInit() 
 {
+	int mask = getimask();
+	setimask(15);
 	
+	struct mapledev *pad=locked_get_pads();
+	
+	for (int i=0; i<4; ++i, ++pad) 
+	{
+		if (pad[i].present & (1<<0))
+		{
+			if (vibro_check_unit(i*6+1, &rumble))
+			{
+				rumble_present = 1;
+				break;
+			}
+		}
+		
+		if (pad[i].present & (1<<1)) 
+		{
+			if (vibro_check_unit(i*6+2, &rumble))
+			{
+				rumble_present = 1;
+				break;
+			}
+		}
+	}
+	
+	setimask(mask);
 }
 
 void joyUpdate() 

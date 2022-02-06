@@ -127,7 +127,7 @@ struct ShaderCache {
         if (rs & RS_DISCARD)
             fx |= FX_ALPHA_TEST;
 
-    #if !defined(FFP) && !defined(_OS_DC)
+    #if !defined(FFP) //&& !defined(_OS_DC)
         if (shaders[pass][type][fx])
             return shaders[pass][type][fx];
 
