@@ -711,7 +711,13 @@ namespace UI {
         if (bgColor != 0)
             mesh->addDynBar(whiteSprite, pos - 1.0f, size + 2.0f, bgColor);
         if ((fgColor != 0 || fgColor2 != 0) && value > 0.0f)
-            mesh->addDynBar(CommonTex[type], pos, vec2(size.x * value, size.y), fgColor, fgColor2);
+            mesh->addDynBar(
+     #ifndef _OS_DC
+							CommonTex[type],
+	 #else
+							whiteSprite,
+	 #endif
+							pos, vec2(size.x * value, size.y), fgColor, fgColor2);
     }
 
     void renderHelp() {

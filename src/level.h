@@ -87,6 +87,9 @@ struct Level : IGame {
     virtual void loadLevel(TR::LevelID id) {
         sndWater = sndTrack = NULL;
         Sound::stopAll();
+	/*#if defined(_OS_DC)
+		stopTrack();
+	#endif*/
         nextLevel = id;
     }
 
@@ -265,10 +268,11 @@ struct Level : IGame {
                 flipMap();
                 level.state.flags.flipped = true;
             }
-
+		#if !defined(_OS_DC)
             uint8 track = level.state.flags.track;
             level.state.flags.track = 0;
             playTrack(track);
+        #endif
         }
 
         statsTimeDelta = 0.0f;
@@ -537,7 +541,7 @@ struct Level : IGame {
             alphaTest = true;
         }
 
-    #if defined(FFP) || defined(_OS_DC)
+    #if defined(FFP) //|| defined(_OS_DC)
         switch (type) {
             case Shader::SPRITE :
             case Shader::ROOM   :
@@ -896,6 +900,7 @@ struct Level : IGame {
     virtual void playTrack(uint8 track, bool background = false) {
         if (background) {
             TR::getGameTrack(level.version, track, playAsyncBG, new TrackRequest(this, Sound::MUSIC));
+            printf("play cdda background %d", track);
             return;
         }
 
@@ -919,15 +924,20 @@ struct Level : IGame {
             sndTrack = NULL;
         }
 
-        if (track == 0xFF) return;
+        if (track == 0xFF)
+        {
+			printf("stop cdda\n");
+			return;
+		}
 
         int flags = Sound::MUSIC;
         if (track == TR::LEVEL_INFO[level.id].track)
             flags |= Sound::LOOP;
 
         waitTrack = true;
+        printf("play cdda %d\n", track);
         TR::getGameTrack(level.version, track, playAsync, new TrackRequest(this, flags));
-
+        
         UI::showSubs(TR::getSubs(level.version, track));
     }
 
@@ -1074,6 +1084,9 @@ struct Level : IGame {
         delete mesh;
 
         Sound::stopAll();
+	#if defined(_OS_DC)
+		stopTrack();
+	#endif
     }
 
     void init(bool playLogo, bool playVideo) {
@@ -1732,9 +1745,9 @@ struct Level : IGame {
 
     #else
         ASSERT(level.tilesCount);
-		UI::patchGlyphs(level);
+		//UI::patchGlyphs(level);
         
-        #if defined(_GAPI_SW) || defined(_GAPI_DC)
+        #if defined(_GAPI_SW)
             atlasRooms   =
             atlasObjects =
             atlasSprites =
@@ -1771,7 +1784,7 @@ struct Level : IGame {
             for (int i = 0; i < level.tilesCount; i++) {
                 char buf[256];
                 sprintf(buf, "texture/%s_%d.png", TR::LEVEL_INFO[level.id].name, i);
-                printf("[init tex] %s\n",buf);
+                //printf("[init tex] %s\n",buf);
                 if (Stream::exists(buf)) {
                     Stream stream(buf);
                     delete[] tiles[i].data;
@@ -1786,6 +1799,7 @@ struct Level : IGame {
 
             for (int i = 0; i < level.tilesCount; i++)
                 delete[] tiles[i].data;
+            
             delete[] tiles;
         #endif
 
@@ -3238,7 +3252,7 @@ struct Level : IGame {
             ambientCache->processQueue();
         }
 
-    #if !defined(FFP) //&& !defined(_OS_DC)
+    #if !defined(FFP) && !defined(_OS_DC)
         if (shadow[0] && players[0]) {
             player = players[0];
             renderShadows(player->getRoomIndex(), shadow[0]);

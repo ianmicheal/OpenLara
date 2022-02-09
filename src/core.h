@@ -771,7 +771,7 @@ namespace Core {
 
     struct Stats {
         uint32 dips, tris, rt, cb, frame, frameIndex, fps;
-        int fpsTime;
+        uint32 fpsTime;
     #ifdef PROFILE
         int tFrame;
         int video;
@@ -1106,7 +1106,7 @@ namespace Core {
         settings.detail.setFilter   (Core::Settings::MEDIUM);
         settings.detail.setLighting (Core::Settings::MEDIUM);
         settings.detail.setShadows  (Core::Settings::MEDIUM);
-        settings.detail.setWater    (Core::Settings::MEDIUM);
+        settings.detail.setWater    (Core::Settings::LOW);
         settings.audio.reverb = false;
     #endif
 

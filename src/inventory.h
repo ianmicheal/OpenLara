@@ -8,7 +8,7 @@
 
 #define INV_MAX_ITEMS  32
 #define INV_MAX_RADIUS 688.0f
-#if defined(_OS_PSP) || defined(_OS_3DS) || defined(_OS_GCW0) || defined(_OS_DC)
+#if defined(_OS_PSP) || defined(_OS_3DS) || defined(_OS_GCW0) //|| defined(_OS_DC)
     #define INV_BG_SIZE    256
 #else
     #define INV_BG_SIZE    512
@@ -1125,10 +1125,13 @@ struct Inventory {
         }
         playVideo = false;
         UI::showSubs(STR_EMPTY);
+    #if !defined(_OS_DC)
         game->playTrack(0);
+    #endif
         if (game->getLevel()->isTitle()) {
             titleTimer = 0.0f;
             toggle(0, Inventory::PAGE_OPTION);
+            game->playTrack(0);
         }
         Input::reset();
         applySounds(false);
@@ -1152,12 +1155,18 @@ struct Inventory {
             skipVideo();
         }
 
-        if (video || titleTimer == TITLE_LOADING) return;
-
+        if (video || titleTimer == TITLE_LOADING) 
+			return;
+		
         if (titleTimer != TITLE_LOADING && titleTimer > 0.0f) {
             titleTimer -= Core::deltaTime;
             if (titleTimer < 0.0f)
                 titleTimer = 0.0f;
+        #ifdef _OS_DC
+            if (titleTimer == 0.0f){
+				game->playTrack(0);
+			}
+		#endif
         }
 
         if (!isActive()) {
