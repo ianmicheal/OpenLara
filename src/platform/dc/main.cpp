@@ -8,6 +8,7 @@
 #include <ronin/ronin.h>
 #include <ronin/soundcommon.h>
 #include <ronin/vibro.h>
+#include <ronin/gddrive.h>
 
 #include "private.h"
 #include "vm_file.h"
@@ -171,6 +172,67 @@ void osMutexUnlock(void *obj)
 	
 }
 
+static int bgm = 0;
+
+void cdda_play(int track, bool loop)
+{
+	struct TOC *toc = cdfs_gettoc();
+	
+	if (((toc->last >> 16)&255) < track)
+	{
+		return;
+	}
+	
+	if (loop)
+	{
+		bgm = track;
+	}
+	
+	play_cdda_tracks(track, track, loop ? 15 : 0);
+}
+
+void cdda_stop(void)
+{
+	if (!bgm)
+	{
+		return;
+	}
+	
+	bgm = 0;
+	stop_cdda();
+}
+
+void check_cdda(void)
+{
+	if (!bgm)
+	{
+		return;
+	}
+	
+	uint32 stat[2];
+	
+	if(gdGdcGetDrvStat(stat) < 0)
+		return;
+	
+	if (bgm)
+	{
+		switch (stat[0])
+		{
+			case 1:
+			case 2:
+				cdda_play(bgm, true);
+				break;
+			case 6:
+			case 7:
+				Core::quit();
+				break;
+			default:
+				return;
+		}
+		
+	}
+}
+
 // sound
 #define SND_FRAME_SIZE  4
 #define SND_FRAMES      512
@@ -242,6 +304,7 @@ void sndInit()
 void sndFree() 
 {
 	stop_sound();
+	cdda_stop();
 }
 
 
@@ -556,6 +619,7 @@ int main()
 	while (!Core::isQuit) 
 	{
 		joyUpdate();
+		check_cdda();
 		
 		if (Game::update()) 
 		{

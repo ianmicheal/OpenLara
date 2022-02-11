@@ -785,7 +785,7 @@ namespace Core {
 
         void stop() {
             if (fpsTime < Core::getTime()) {
-                LOG("FPS: %d DIP: %d TRI: %d RT: %d\n", fps, dips, tris, rt);
+                //LOG("FPS: %d DIP: %d TRI: %d RT: %d\n", fps, dips, tris, rt);
             #ifdef PROFILE
                 LOG("frame time: %d mcs\n", tFrame / 1000);
                 LOG("sound: mix %d rev %d ren %d/%d ogg %d\n", Sound::stats.mixer, Sound::stats.reverb, Sound::stats.render[0], Sound::stats.render[1], Sound::stats.ogg);

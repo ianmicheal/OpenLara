@@ -30,7 +30,10 @@ extern void loadLevelAsync(Stream *stream, void *userData);
 extern Array<SaveSlot> saveSlots;
 extern SaveResult saveResult;
 extern int loadSlot;
-
+#ifdef _OS_DC
+extern void cdda_play(int track, bool loop);
+extern void cdda_stop(void);
+#endif
 struct Level : IGame {
 
     TR::Level   level;
@@ -87,9 +90,9 @@ struct Level : IGame {
     virtual void loadLevel(TR::LevelID id) {
         sndWater = sndTrack = NULL;
         Sound::stopAll();
-	/*#if defined(_OS_DC)
+	#if defined(_OS_DC)
 		stopTrack();
-	#endif*/
+	#endif
         nextLevel = id;
     }
 
@@ -541,7 +544,7 @@ struct Level : IGame {
             alphaTest = true;
         }
 
-    #if defined(FFP) //|| defined(_OS_DC)
+    #if defined(FFP) || defined(_OS_DC)
         switch (type) {
             case Shader::SPRITE :
             case Shader::ROOM   :
@@ -900,7 +903,6 @@ struct Level : IGame {
     virtual void playTrack(uint8 track, bool background = false) {
         if (background) {
             TR::getGameTrack(level.version, track, playAsyncBG, new TrackRequest(this, Sound::MUSIC));
-            printf("play cdda background %d", track);
             return;
         }
 
@@ -926,7 +928,13 @@ struct Level : IGame {
 
         if (track == 0xFF)
         {
-			printf("stop cdda\n");
+		#ifdef _OS_DC
+			if (level.state.flags.track)
+			{
+				level.state.flags.track = 0;
+				cdda_stop();
+			}
+		#endif
 			return;
 		}
 
@@ -935,7 +943,9 @@ struct Level : IGame {
             flags |= Sound::LOOP;
 
         waitTrack = true;
-        printf("play cdda %d\n", track);
+        #ifdef _OS_DC
+        cdda_play(track, !!(flags&Sound::LOOP));
+        #endif
         TR::getGameTrack(level.version, track, playAsync, new TrackRequest(this, flags));
         
         UI::showSubs(TR::getSubs(level.version, track));
@@ -1784,7 +1794,6 @@ struct Level : IGame {
             for (int i = 0; i < level.tilesCount; i++) {
                 char buf[256];
                 sprintf(buf, "texture/%s_%d.png", TR::LEVEL_INFO[level.id].name, i);
-                //printf("[init tex] %s\n",buf);
                 if (Stream::exists(buf)) {
                     Stream stream(buf);
                     delete[] tiles[i].data;

@@ -24,6 +24,10 @@
 #define TITLE_LOADING         64.0f
 #define LINE_HEIGHT           20.0f
 
+#if defined(_OS_DC)
+#include <ronin/sound.h>
+#endif
+
 static const struct OptionItem *waitForKey = NULL;
 
 struct OptionItem {
@@ -1092,8 +1096,17 @@ struct Inventory {
 
         if (item->type == TR::Entity::INV_SOUND) {
             game->applySettings(settings);
-            if (opt->offset == SETTINGS( audio.sound ) )
+            if (opt->offset == SETTINGS( audio.sound ))
                 game->playSound(TR::SND_PISTOLS_SHOT);
+        #ifdef _OS_DC
+            else if (opt->offset == SETTINGS( audio.music )){
+				int vol = Core::settings.audio.music - 5;
+				if (vol < 0)
+					vol = 0;
+				
+				spu_cdda_volume(vol, vol);
+			}
+		#endif
         }
 
         if (item->type == TR::Entity::INV_CONTROLS && opt->type == OptionItem::TYPE_KEY) {
@@ -1131,7 +1144,6 @@ struct Inventory {
         if (game->getLevel()->isTitle()) {
             titleTimer = 0.0f;
             toggle(0, Inventory::PAGE_OPTION);
-            game->playTrack(0);
         }
         Input::reset();
         applySounds(false);
@@ -1168,7 +1180,12 @@ struct Inventory {
 			}
 		#endif
         }
-
+        #ifdef _OS_DC
+        if (game->getLevel()->isTitle() && !game->getLevel()->state.flags.track)
+		{
+			game->playTrack(0);
+		}
+		#endif
         if (!isActive()) {
             lastKey = cMAX;
             return;
