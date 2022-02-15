@@ -73,6 +73,7 @@ const char *STR_PT[] = { ""
     , "VSync"
     , "Est)ereo"
     , "Itens Simples"
+    , STR_WIDESCREEN
     , "Resolution"
     , STR_SCALE
 // sound options

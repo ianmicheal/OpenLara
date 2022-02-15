@@ -84,6 +84,7 @@ enum StringID {
     , STR_OPT_DETAIL_VSYNC
     , STR_OPT_DETAIL_STEREO
     , STR_OPT_SIMPLE_ITEMS
+    , STR_OPT_WIDESCREEN
     , STR_OPT_RESOLUTION
     , STR_SCALE_100
     , STR_SCALE_75
@@ -290,6 +291,8 @@ enum StringID {
     , "NONE", "A", "B", "X", "Y", "L BUMPER", "R BUMPER", "SELECT", "START", "L STICK", "R STICK", "L TRIGGER", "R TRIGGER", "D-LEFT", "D-RIGHT", "D-UP", "D-DOWN"
 
 #define STR_SCALE "25", "50", "75", "100"
+
+#define STR_WIDESCREEN "Widescreen mode"
 
 const char *helpText = 
     "Start - add second player or restore Lara@"

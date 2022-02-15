@@ -73,6 +73,7 @@ const char *STR_FI[] = { "Suomi"
     , "VSync"
     , "Stereo"
     , "Litte~at Esineet"
+    , STR_WIDESCREEN
     , "Resolution"
     , STR_SCALE
 // sound options

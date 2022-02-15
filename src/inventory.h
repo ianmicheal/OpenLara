@@ -155,6 +155,8 @@ static const OptionItem optDetail[] = {
 #ifndef _OS_DC
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_RESOLUTION,      SETTINGS( detail.scale     ), STR_SCALE_100, 0, 3 ),
     OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_DETAIL_VSYNC,    SETTINGS( detail.vsync     ), STR_OFF, 0, 1 ),
+#else
+	OptionItem( OptionItem::TYPE_PARAM,  STR_OPT_WIDESCREEN,      SETTINGS( detail.wide      ), STR_OFF, 0, 1 ),
 #endif
 #endif
 #ifdef INV_STEREO
@@ -1100,10 +1102,7 @@ struct Inventory {
                 game->playSound(TR::SND_PISTOLS_SHOT);
         #ifdef _OS_DC
             else if (opt->offset == SETTINGS( audio.music )){
-				int vol = Core::settings.audio.music - 5;
-				if (vol < 0)
-					vol = 0;
-				
+				int vol = Core::settings.audio.music * 3 / 4;
 				spu_cdda_volume(vol, vol);
 			}
 		#endif

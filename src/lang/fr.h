@@ -73,6 +73,7 @@ const char *STR_FR[] = { ""
     , "VSync"
     , "St)er)eo"
     , "Objets Simples"
+    , STR_WIDESCREEN
     , "Resolution"
     , STR_SCALE
 // sound options

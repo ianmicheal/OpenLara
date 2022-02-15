@@ -373,7 +373,7 @@ namespace Core {
     #endif
     } support;
 
-#define SETTINGS_VERSION 7
+#define SETTINGS_VERSION 8
 #define SETTINGS_READING 0xFF
 
     struct Settings {
@@ -394,6 +394,7 @@ namespace Core {
                 uint8 quality[4];
             };
             uint8 simple;
+            uint8 wide;
             uint8 scale;
             uint8 vsync;
             uint8 stereo;
@@ -972,6 +973,7 @@ namespace Core {
         settings.detail.setShadows  (Core::Settings::HIGH);
         settings.detail.setWater    (Core::Settings::HIGH);
         settings.detail.simple       = false;
+        settings.detail.wide         = false;
         settings.detail.vsync        = true;
         settings.detail.stereo       = Settings::STEREO_OFF;
         settings.detail.scale        = Settings::SCALE_100;

@@ -76,6 +76,7 @@ const char *STR_CN[] = { "简体中文"
     , "垂直同步"
     , "3D模式"
     , "2D化可拾物"
+    , STR_WIDESCREEN
     , "分辨率缩放"
     , STR_SCALE
 // sound options

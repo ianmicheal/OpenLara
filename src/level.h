@@ -397,7 +397,9 @@ struct Level : IGame {
         bool redraw = memcmp(&settings.detail, &Core::settings.detail, sizeof(settings.detail)) != 0;
 
         bool toggleVR = (settings.detail.stereo == Core::Settings::STEREO_VR) ^ (Core::settings.detail.stereo == Core::Settings::STEREO_VR);
-
+        #if defined(_OS_DC)
+        Core::aspectFix = (settings.detail.wide) ? 1.33333333 : 1.0;
+        #endif
         Core::settings = settings;
 
         if (toggleVR) {

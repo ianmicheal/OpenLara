@@ -76,6 +76,7 @@ const char *STR_GR[] = { "Ελληνικά"
     , "VSync"
     , "Στερεοσκοπία"
     , "Απλά Αντικείμενα"
+    , STR_WIDESCREEN
     , "Resolution"
     , STR_SCALE
 // sound options

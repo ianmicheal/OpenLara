@@ -73,6 +73,7 @@ const char *STR_SV[] = { ""
     , "VSync"
     , "Stereo"
     , "Enkla Objekt"
+    , STR_WIDESCREEN
     , "Uppl~osning"
     , STR_SCALE
 // sound options

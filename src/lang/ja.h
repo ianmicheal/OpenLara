@@ -76,6 +76,7 @@ const char *STR_JA[] = { "日本語"
     , "VSync"
     , "パラレルビュー"
     , "2Dアイテム"
+    , STR_WIDESCREEN
     , "Resolution"
     , STR_SCALE
 // sound options

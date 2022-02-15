@@ -73,6 +73,7 @@ const char *STR_CZ[] = { ""
     , "VSync"
     , "Stereo"
     , "Jednoduch)e objekty"
+    , STR_WIDESCREEN
     , "Rozli{sen)i"
     , STR_SCALE
 // sound options

@@ -73,6 +73,7 @@ const char *STR_HU[] = { ""
     , "VSync"
     , "Sztere)o"
     , "Egyszer\"u t)argyak"
+    , STR_WIDESCREEN
     , "Felbont)as"
     , STR_SCALE
 // sound options
