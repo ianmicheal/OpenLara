@@ -2626,7 +2626,8 @@ struct Lara : Character {
         }
 
         // walk button is pressed
-        if ((input & WALK) && animation.index != ANIM_RUN_START) {
+        if ((input & WALK) && animation.index != ANIM_RUN_START) 
+        {
             float ext = angle.y;
 
             if (input & FORTH) { 
@@ -2649,10 +2650,15 @@ struct Lara : Character {
             int maxDescent = maxAscent;
 
             if (state == STATE_STEP_LEFT || state == STATE_STEP_RIGHT)
+            {
                 maxAscent = maxDescent = 64;
+			}
 
             if (state == STATE_STOP && res != STATE_STOP)
+			{
                 res = checkMove(res, maxAscent, maxDescent);
+			}
+			
             return res;
         }
 
@@ -2834,66 +2840,108 @@ struct Lara : Character {
         return newState;
     }
 
-    virtual int getStateWade() {
+    virtual int getStateWade() 
+    {
         angle.x = 0.0f;
 
         if (waterDepth > 0.0f && !(animation.frameIndex % 4))
+        {
             game->waterDrop(getJoint(jointChest).pos + vec3(randf(), 0.0f, randf()) * 64.0f, 96.0f, 0.02f);
+		}
 
         if ((input & FORTH) && (input & BACK))
+        {
             input &= ~(FORTH | BACK);
+		}
 
         if (checkClimb())
+        {
             return state;
+		}
 
-        if (input & JUMP) {
+        if (input & JUMP) 
+        {
             return STATE_COMPRESS;
         }
 
         if (state == STATE_COMPRESS || state == STATE_UP_JUMP)
+        {
             return state;
+		}
 
-        if (state != STATE_WADE) {
+        if (state != STATE_WADE) 
+        {
             if (state == STATE_SWIM || state == STATE_GLIDE)
+            {
                 return animation.setAnim(ANIM_WADE_ASCEND);
+			}
+			
             if (state == STATE_COMPRESS)
+            {
                 return STATE_UP_JUMP;
-            if (state == STATE_RUN) {
+			}
+			
+            if (state == STATE_RUN) 
+            {
                 waterSplash();
                 return animation.setAnim(getLeadingFoot() ? ANIM_WADE_RUN_LEFT : ANIM_WADE_RUN_RIGHT);
             }
+            
             if (state == STATE_SURF_SWIM)
+            {
                 return animation.setAnim(ANIM_WADE_SWIM);
+			}
+			
             if (state == STATE_SURF_BACK)
+            {
                 return animation.setAnim(ANIM_BACK);
+			}
         }
 
-        if (input & FORTH) {
+        if (input & FORTH) 
+        {
             if (checkMove(STATE_WADE) != STATE_WADE)
+            {
                 return STATE_STOP;
+			}
+			
             if (state == STATE_STOP)
+            {
                 return animation.setAnim(ANIM_WADE_STAND);
+			}
+			
             if (state != STATE_WADE && state != STATE_WATER_OUT)
+            {
                 return animation.setAnim(ANIM_WADE);
+			}
+			
             return STATE_WADE;
         }
 
-        if (input & BACK) {
+        if (input & BACK) 
+        {
             if (checkMove(STATE_BACK) != STATE_BACK)
+            {
                 return STATE_STOP;
+			}
+			
             return STATE_BACK;
         }
 
         // walk button is pressed
-        if ((input & WALK) && (input & (LEFT | RIGHT)) && animation.index != ANIM_RUN_START) {
-            int res;
+        if ((input & WALK) && (input & (LEFT | RIGHT)) && animation.index != ANIM_RUN_START) 
+        {
+            int res = STATE_STOP;
 
             float ext = angle.y;
 
-            if (input & LEFT) {
+            if (input & LEFT) 
+            {
                 res = STATE_STEP_LEFT;
                 ext -= PI * 0.5f;
-            } else if (input & RIGHT) {
+            } 
+            else if (input & RIGHT) 
+            {
                 res = STATE_STEP_RIGHT;
                 ext += PI * 0.5f;
             }
@@ -2902,15 +2950,22 @@ struct Lara : Character {
             int maxDescent = maxAscent;
 
             if (state == STATE_STEP_LEFT || state == STATE_STEP_RIGHT)
+            {
                 maxAscent = maxDescent = 64;
+			}
 
             if (state == STATE_STOP && res != STATE_STOP)
+            {
                 res = checkMove(res, maxAscent, maxDescent);
+			}
+			
             return res;
         }
 
         if (input & (LEFT | RIGHT))
+        {
             return getTurn();
+		}
 
         return STATE_STOP;
     }
